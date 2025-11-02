@@ -45,12 +45,6 @@ define( 'MODERATE_STATUS_SPAM', 3 );
  * @return boolean True if moderation should be bypassed, false if item should be moderated
  */
 function moderate_should_bypass_issue( $p_project_id, $p_user_id = null ) {
-	# Check if we're bypassing moderation (e.g., during approval)
-	global $g_moderate_bypass;
-	if( !empty( $g_moderate_bypass ) ) {
-		return true;
-	}
-
 	# Get user ID if not specified
 	if( $p_user_id === null ) {
 		$p_user_id = auth_get_current_user_id();
@@ -73,12 +67,6 @@ function moderate_should_bypass_issue( $p_project_id, $p_user_id = null ) {
  * @return boolean True if moderation should be bypassed, false if note should be moderated
  */
 function moderate_should_bypass_note( $p_issue_id, $p_user_id = null ) {
-	# Check if we're bypassing moderation (e.g., during approval)
-	global $g_moderate_bypass;
-	if( !empty( $g_moderate_bypass ) ) {
-		return true;
-	}
-
 	# Get user ID if not specified
 	if( $p_user_id === null ) {
 		$p_user_id = auth_get_current_user_id();
@@ -325,10 +313,6 @@ function moderate_queue_get( $p_queue_id ) {
 function moderate_queue_approve( $p_queue_id ) {
 	$t_item = moderate_queue_get( $p_queue_id );
 
-	# Set global flag to bypass moderation during approval
-	global $g_moderate_bypass;
-	$g_moderate_bypass = true;
-
 	# Impersonate the reporter for validation and creation
 	# current_user_set() returns the old user ID
 	$t_current_user = current_user_set( $t_item['reporter_id'] );
@@ -340,7 +324,10 @@ function moderate_queue_approve( $p_queue_id ) {
 			$t_command_data = array(
 				'payload' => array(
 					'issue' => $t_item['data']
-				)
+				),
+				'options' => array(
+					'skip_moderation' => true,
+				),
 			);
 
 			require_once( config_get_global( 'core_path' ) . 'commands/IssueAddCommand.php' );
@@ -350,7 +337,6 @@ function moderate_queue_approve( $p_queue_id ) {
 
 			# Restore moderator user and clear bypass flag
 			current_user_set( $t_current_user );
-			$g_moderate_bypass = false;
 
 			# Update queue status with moderator info
 			moderate_queue_update_status( $p_queue_id, MODERATE_STATUS_APPROVED );
@@ -365,7 +351,10 @@ function moderate_queue_approve( $p_queue_id ) {
 				'query' => array(
 					'issue_id' => $t_bug_id
 				),
-				'payload' => $t_item['data']
+				'payload' => $t_item['data'],
+				'options' => array(
+					'skip_moderation' => true,
+				),
 			);
 
 			require_once( config_get_global( 'core_path' ) . 'commands/IssueNoteAddCommand.php' );
@@ -375,7 +364,6 @@ function moderate_queue_approve( $p_queue_id ) {
 
 			# Restore moderator user and clear bypass flag
 			current_user_set( $t_current_user );
-			$g_moderate_bypass = false;
 
 			# Update queue status with moderator info
 			moderate_queue_update_status( $p_queue_id, MODERATE_STATUS_APPROVED );
@@ -385,7 +373,6 @@ function moderate_queue_approve( $p_queue_id ) {
 	} catch( Exception $e ) {
 		# Restore moderator user and clear bypass flag in case of error
 		current_user_set( $t_current_user );
-		$g_moderate_bypass = false;
 		throw $e;
 	}
 }

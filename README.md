@@ -87,16 +87,6 @@ without waiting for moderation approval. This is essential for effective issue t
 **Exception**: This bypass applies regardless of the user's access level. Even users below the bypass
 threshold can add notes to their own issues without moderation.
 
-### 3. System-Level Bypass (Internal)
-
-**Rule**: When the moderation system is approving an item (recreating an issue or note from the queue),
-moderation is automatically bypassed.
-
-**Technical Detail**: Controlled by the internal `$g_moderate_bypass` global flag to prevent infinite
-moderation loops during the approval process.
-
-**Not User-Configurable**: This is an internal safeguard and cannot be disabled.
-
 ## Moderation Decision Logic
 
 Here's how the system determines whether an issue or note requires moderation:
@@ -303,9 +293,6 @@ Returns moderation queue statistics. Optional `project_id` parameter filters by 
 ## Limitations
 
 - When an issue or a note requires moderation, attaching files is not allowed.
-- Custom field data is preserved but should be tested
-- The plugin works with core MantisBT functionality; some third-party plugins may not be
-  compatible
 
 ## Future Enhancements
 
