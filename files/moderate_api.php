@@ -557,8 +557,6 @@ function moderate_queue_delete( $p_queue_id ) {
  * Auto-delete old moderated entries (30+ days old)
  * Removes approved, rejected, and spam entries that were moderated 30+ days ago
  * Pending entries are never automatically deleted
- *
- * @return integer Number of entries deleted
  */
 function moderate_queue_cleanup() {
 	$t_queue_table = plugin_table( 'queue', 'Moderate' );
@@ -578,8 +576,6 @@ function moderate_queue_cleanup() {
 		MODERATE_STATUS_SPAM,
 		$t_cutoff_date
 	) );
-
-	return db_affected_rows();
 }
 
 /**
@@ -587,7 +583,6 @@ function moderate_queue_cleanup() {
  * Called when a project is deleted to clean up orphaned moderation entries
  *
  * @param integer $p_project_id Project ID that was deleted
- * @return integer Number of entries deleted
  */
 function moderate_queue_delete_by_project( $p_project_id ) {
 	$t_queue_table = plugin_table( 'queue', 'Moderate' );
@@ -595,6 +590,18 @@ function moderate_queue_delete_by_project( $p_project_id ) {
 	# Delete all moderation entries for this project
 	$t_query = "DELETE FROM $t_queue_table WHERE project_id = " . db_param();
 	db_query( $t_query, array( $p_project_id ) );
+}
 
-	return db_affected_rows();
+/**
+ * Delete all moderation entries for a deleted user
+ * Called when a user is deleted to clean up orphaned moderation entries
+ *
+ * @param integer $p_user_id User ID that was deleted
+ */
+function moderate_queue_delete_by_user( $p_user_id ) {
+	$t_queue_table = plugin_table( 'queue', 'Moderate' );
+
+	# Delete all moderation entries reported by this user
+	$t_query = "DELETE FROM $t_queue_table WHERE reporter_id = " . db_param();
+	db_query( $t_query, array( $p_user_id ) );
 }

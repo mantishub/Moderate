@@ -117,6 +117,7 @@ class ModeratePlugin extends MantisPlugin {
 			'EVENT_MENU_MANAGE' => 'menu_manage',
 			'EVENT_REST_API_ROUTES' => 'rest_api_routes',
 			'EVENT_MANAGE_PROJECT_DELETE' => 'project_delete',
+			'EVENT_MANAGE_USER_DELETE' => 'user_delete',
 		);
 	}
 
@@ -258,5 +259,15 @@ class ModeratePlugin extends MantisPlugin {
 	 */
 	function project_delete( $p_event, $p_project_id ) {
 		moderate_queue_delete_by_project( $p_project_id );
+	}
+
+	/**
+	 * Hook for user deletion - clean up moderation entries
+	 * @param string $p_event Event name
+	 * @param integer $p_user_id User ID being deleted
+	 * @return void
+	 */
+	function user_delete( $p_event, $p_user_id ) {
+		moderate_queue_delete_by_user( $p_user_id );
 	}
 }
