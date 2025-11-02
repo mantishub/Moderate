@@ -133,17 +133,10 @@ function moderate_rest_routes( \Slim\App $p_app ) {
 		$this->post( '/reject/{queue_id}', function( $request, $response, $args ) {
 			$t_queue_id = (int)$args['queue_id'];
 
-			# Get optional reason from body
-			$t_body = $request->getParsedBody();
-			$t_reason = isset( $t_body['reason'] ) ? $t_body['reason'] : '';
-
 			# Build command data
 			$t_data = array(
 				'query' => array(
 					'queue_id' => $t_queue_id
-				),
-				'payload' => array(
-					'reason' => $t_reason
 				)
 			);
 

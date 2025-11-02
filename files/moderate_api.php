@@ -384,11 +384,16 @@ function moderate_queue_approve( $p_queue_id ) {
  * @return void
  */
 function moderate_queue_reject( $p_queue_id ) {
+	# Get queue item before updating status
+	$t_item = moderate_queue_get( $p_queue_id );
+
 	# Update queue status with moderator info
 	moderate_queue_update_status( $p_queue_id, MODERATE_STATUS_REJECTED );
 
-	# Optionally notify the reporter
-	# TODO: Implement notification to reporter about rejection
+	# Send notification to reporter if enabled
+	if( plugin_config_get( 'notify_on_reject', null, false, null, 'Moderate' ) == ON ) {
+		moderate_email_notify_rejection( $t_item );
+	}
 }
 
 /**
@@ -514,6 +519,11 @@ function moderate_queue_spam( $p_queue_id ) {
 
 	$t_queue_table = plugin_table( 'queue', 'Moderate' );
 
+	# Send notification before marking as spam (while user is still enabled)
+	if( plugin_config_get( 'notify_on_spam', null, false, null, 'Moderate' ) == ON ) {
+		moderate_email_notify_spam( $t_item );
+	}
+
 	# Mark all pending and non-approved items from this reporter as spam
 	# This includes the current item regardless of its status (pending, rejected, or spam)
 	$t_query = "UPDATE $t_queue_table
@@ -604,4 +614,120 @@ function moderate_queue_delete_by_user( $p_user_id ) {
 	# Delete all moderation entries reported by this user
 	$t_query = "DELETE FROM $t_queue_table WHERE reporter_id = " . db_param();
 	db_query( $t_query, array( $p_user_id ) );
+}
+
+/**
+ * Send email notification to reporter when their submission is rejected
+ *
+ * @param array $p_item Queue item data
+ * @return void
+ */
+function moderate_email_notify_rejection( $p_item ) {
+	# Check if email notifications are enabled globally
+	if( OFF == config_get( 'enable_email_notification' ) ) {
+		log_event( LOG_EMAIL_VERBOSE, 'email notifications disabled.' );
+		return;
+	}
+
+	# Check if user is enabled
+	if( !user_is_enabled( $p_item['reporter_id'] ) ) {
+		log_event( LOG_EMAIL_VERBOSE, 'skipped rejection email for disabled user U' . $p_item['reporter_id'] );
+		return;
+	}
+
+	# Get user email
+	$t_email = user_get_email( $p_item['reporter_id'] );
+	if( is_blank( $t_email ) ) {
+		log_event( LOG_EMAIL_VERBOSE, 'skipped rejection email for U' . $p_item['reporter_id'] . ' (no email address).' );
+		return;
+	}
+
+	# Push reporter's language
+	lang_push( user_pref_get_language( $p_item['reporter_id'], $p_item['project_id'] ) );
+
+	# Build email subject
+	if( $p_item['type'] === 'issue' ) {
+		$t_subject = plugin_lang_get( 'email_rejected_issue_subject', 'Moderate' );
+		$t_body_intro = plugin_lang_get( 'email_rejected_issue_body', 'Moderate' );
+	} else {
+		$t_subject = plugin_lang_get( 'email_rejected_note_subject', 'Moderate' );
+		$t_body_intro = plugin_lang_get( 'email_rejected_note_body', 'Moderate' );
+	}
+
+	# Build email body
+	$t_date_format = config_get( 'normal_date_format' );
+	$t_date = date( $t_date_format, $p_item['date_submitted'] );
+	$t_moderator = user_get_name( auth_get_current_user_id() );
+
+	$t_body = $t_body_intro . "\n\n";
+	$t_body .= lang_get( 'date_submitted' ) . ': ' . $t_date . "\n";
+	$t_body .= plugin_lang_get( 'email_moderator', 'Moderate' ) . ': ' . $t_moderator . "\n\n";
+
+	# Add item details
+	if( $p_item['type'] === 'issue' ) {
+		$t_data = $p_item['data'];
+		$t_body .= lang_get( 'summary' ) . ': ' . $t_data['summary'] . "\n\n";
+		$t_body .= lang_get( 'description' ) . ":\n" . $t_data['description'] . "\n";
+	} else {
+		$t_data = $p_item['data'];
+		$t_body .= plugin_lang_get( 'email_text', 'Moderate' ) . ":\n" . $t_data['text'] . "\n";
+	}
+
+	# Store email for sending
+	$t_id = email_store( $t_email, $t_subject, $t_body );
+	log_event( LOG_EMAIL_VERBOSE, 'queued rejection email ' . $t_id . ' for U' . $p_item['reporter_id'] );
+
+	lang_pop();
+}
+
+/**
+ * Send email notification to reporter when their submission is marked as spam
+ *
+ * @param array $p_item Queue item data
+ * @return void
+ */
+function moderate_email_notify_spam( $p_item ) {
+	# Check if email notifications are enabled globally
+	if( OFF == config_get( 'enable_email_notification' ) ) {
+		log_event( LOG_EMAIL_VERBOSE, 'email notifications disabled.' );
+		return;
+	}
+
+	# Check if user is enabled (should be before we disable them)
+	if( !user_is_enabled( $p_item['reporter_id'] ) ) {
+		log_event( LOG_EMAIL_VERBOSE, 'skipped spam email for disabled user U' . $p_item['reporter_id'] );
+		return;
+	}
+
+	# Get user email
+	$t_email = user_get_email( $p_item['reporter_id'] );
+	if( is_blank( $t_email ) ) {
+		log_event( LOG_EMAIL_VERBOSE, 'skipped spam email for U' . $p_item['reporter_id'] . ' (no email address).' );
+		return;
+	}
+
+	# Push reporter's language
+	lang_push( user_pref_get_language( $p_item['reporter_id'], $p_item['project_id'] ) );
+
+	# Build email subject
+	if( $p_item['type'] === 'issue' ) {
+		$t_subject = plugin_lang_get( 'email_spam_issue_subject', 'Moderate' );
+	} else {
+		$t_subject = plugin_lang_get( 'email_spam_note_subject', 'Moderate' );
+	}
+
+	# Build email body
+	$t_date_format = config_get( 'normal_date_format' );
+	$t_date = date( $t_date_format, $p_item['date_submitted'] );
+	$t_moderator = user_get_name( auth_get_current_user_id() );
+
+	$t_body = plugin_lang_get( 'email_spam_body', 'Moderate' ) . "\n\n";
+	$t_body .= lang_get( 'date_submitted' ) . ': ' . $t_date . "\n";
+	$t_body .= plugin_lang_get( 'email_moderator', 'Moderate' ) . ': ' . $t_moderator . "\n";
+
+	# Store email for sending
+	$t_id = email_store( $t_email, $t_subject, $t_body );
+	log_event( LOG_EMAIL_VERBOSE, 'queued spam email ' . $t_id . ' for U' . $p_item['reporter_id'] );
+
+	lang_pop();
 }

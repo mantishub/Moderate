@@ -37,9 +37,13 @@ if( $f_save ) {
 
 	$f_moderate_threshold = gpc_get_int( 'moderate_threshold' );
 	$f_moderate_bypass_threshold = gpc_get_int( 'moderate_bypass_threshold' );
+	$f_notify_on_reject = gpc_get_bool( 'notify_on_reject', false );
+	$f_notify_on_spam = gpc_get_bool( 'notify_on_spam', false );
 
 	plugin_config_set( 'moderate_threshold', $f_moderate_threshold );
 	plugin_config_set( 'moderate_bypass_threshold', $f_moderate_bypass_threshold );
+	plugin_config_set( 'notify_on_reject', $f_notify_on_reject ? ON : OFF );
+	plugin_config_set( 'notify_on_spam', $f_notify_on_spam ? ON : OFF );
 
 	form_security_purge( 'plugin_Moderate_config' );
 
@@ -83,6 +87,28 @@ layout_page_begin();
 			<select name="moderate_bypass_threshold" id="moderate_bypass_threshold" class="input-sm">
 				<?php print_enum_string_option_list( 'access_levels', plugin_config_get( 'moderate_bypass_threshold' ) ) ?>
 			</select>
+		</td>
+	</tr>
+	<tr>
+		<th class="category">
+			<label for="notify_on_reject"><?php echo plugin_lang_get( 'config_notify_on_reject' ) ?></label>
+		</th>
+		<td>
+			<label>
+				<input type="checkbox" name="notify_on_reject" id="notify_on_reject" class="ace" <?php echo ( plugin_config_get( 'notify_on_reject' ) == ON ) ? 'checked="checked"' : '' ?> />
+				<span class="lbl"></span>
+			</label>
+		</td>
+	</tr>
+	<tr>
+		<th class="category">
+			<label for="notify_on_spam"><?php echo plugin_lang_get( 'config_notify_on_spam' ) ?></label>
+		</th>
+		<td>
+			<label>
+				<input type="checkbox" name="notify_on_spam" id="notify_on_spam" class="ace" <?php echo ( plugin_config_get( 'notify_on_spam' ) == ON ) ? 'checked="checked"' : '' ?> />
+				<span class="lbl"></span>
+			</label>
 		</td>
 	</tr>
 </table>

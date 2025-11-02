@@ -64,6 +64,12 @@ class ModeratePlugin extends MantisPlugin {
 
 			# Users at or above this access level bypass moderation
 			'moderate_bypass_threshold' => DEVELOPER,
+
+			# Send email notification to reporter when their submission is rejected
+			'notify_on_reject' => ON,
+
+			# Send email notification to reporter when their submission is marked as spam
+			'notify_on_spam' => ON,
 		);
 	}
 

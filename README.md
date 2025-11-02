@@ -45,6 +45,18 @@ Users at or above this access level can manage the moderation queue and approve 
 
 **Default**: MANAGER
 
+### Notify Reporter on Rejection
+
+When enabled, reporters will receive an email notification when their submission is rejected. The email includes the submission details and information about who rejected it and when.
+
+**Default**: ON
+
+### Notify Reporter When Marked as Spam
+
+When enabled, reporters will receive an email notification when their submission is marked as spam. Note that after this notification is sent, the user's account will be disabled.
+
+**Default**: ON
+
 ## Auto-Approval / Bypass Moderation Rules
 
 The plugin automatically bypasses moderation in the following scenarios, meaning the issue or note is
@@ -144,9 +156,11 @@ When reviewing items in the moderation queue, moderators have several actions av
 
 - **Reject**: Marks the item as rejected without creating the issue or note. Use this for
   items that don't meet quality standards, are duplicates, or are off-topic but are not spam.
+  If email notifications are enabled, the reporter will receive an email explaining the rejection.
 
 - **Spam**: Marks the item and **all pending items from the same reporter** as spam and
   **disables the reporter's account**. This is a powerful action intended for clear spam submissions.
+  If email notifications are enabled, a spam notification is sent before the account is disabled.
   The user will no longer be able to sign in or submit new issues. Only users with "Manage Users"
   permission can use this action.
 
@@ -253,15 +267,7 @@ Approves a pending moderation item and creates the issue/note.
 POST /api/rest/moderate/reject/{queue_id}
 ```
 
-Rejects a pending moderation item.
-
-**Request Body (optional):**
-
-```json
-{
-  "reason": "Spam or inappropriate content"
-}
-```
+Rejects a pending moderation item. If email notifications are enabled, the reporter will receive an email with the rejection details.
 
 **Response:**
 
@@ -269,8 +275,7 @@ Rejects a pending moderation item.
 {
   "queue_id": 123,
   "status": "rejected",
-  "type": "issue",
-  "reason": "Spam or inappropriate content"
+  "type": "issue"
 }
 ```
 
