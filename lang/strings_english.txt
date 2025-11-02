@@ -1,0 +1,65 @@
+<?php
+/**************************************************************************
+ MantisHub Moderate Plugin
+ MIT License
+ **************************************************************************/
+
+$s_plugin_Moderate_title = 'Moderate';
+$s_plugin_Moderate_description = 'Enables moderation of new issues and notes before they are submitted and trigger email notifications.';
+
+# Menu
+$s_plugin_Moderate_menu_moderate = 'Moderation Queue';
+
+# Queue page
+$s_plugin_Moderate_queue_title = 'Moderation Queue';
+$s_plugin_Moderate_queue_type = 'Type';
+$s_plugin_Moderate_queue_project = 'Project';
+$s_plugin_Moderate_queue_reporter = 'Reporter';
+$s_plugin_Moderate_queue_summary = 'Summary';
+$s_plugin_Moderate_queue_date_submitted = 'Date Submitted';
+$s_plugin_Moderate_queue_date_moderated = 'Date Moderated';
+$s_plugin_Moderate_queue_moderator = 'Moderator';
+$s_plugin_Moderate_queue_status = 'Status';
+$s_plugin_Moderate_queue_actions = 'Actions';
+$s_plugin_Moderate_queue_empty = 'No items pending moderation';
+$s_plugin_Moderate_history_empty = 'No moderation history available';
+$s_plugin_Moderate_queue_type_issue = 'Issue';
+$s_plugin_Moderate_queue_type_note = 'Note';
+$s_plugin_Moderate_queue_note_on_issue = 'Note on issue';
+
+# View tabs
+$s_plugin_Moderate_view_pending = 'Pending';
+$s_plugin_Moderate_view_history = 'History';
+
+# Status values
+$s_plugin_Moderate_status_pending = 'Pending';
+$s_plugin_Moderate_status_approved = 'Approved';
+$s_plugin_Moderate_status_rejected = 'Rejected';
+$s_plugin_Moderate_status_spam = 'Spam';
+$s_plugin_Moderate_status_unknown = 'Unknown';
+
+# Actions
+$s_plugin_Moderate_approve = 'Approve';
+$s_plugin_Moderate_reject = 'Reject';
+$s_plugin_Moderate_spam = 'Spam';
+$s_plugin_Moderate_spam_confirm = 'Mark this item and all pending items from the same user as spam?';
+$s_plugin_Moderate_delete = 'Delete';
+$s_plugin_Moderate_delete_confirm = 'Delete this item from the queue?';
+
+# View options
+$s_plugin_Moderate_show_moderated = 'Show moderated items';
+$s_plugin_Moderate_hide_moderated = 'Hide moderated items';
+$s_plugin_Moderate_queue_limit_reached = 'Showing first 100 items. There are more items in the database.';
+
+# Config page
+$s_plugin_Moderate_config_title = 'Moderate Plugin Configuration';
+$s_plugin_Moderate_config_moderate_threshold = 'Moderator Access Level';
+$s_plugin_Moderate_config_bypass_threshold = 'Bypass Moderation Access Level';
+
+# Moderation notices
+$s_plugin_Moderate_moderation_notice_issue = 'Your issue will be submitted for moderation and will appear after approval by an administrator.';
+$s_plugin_Moderate_moderation_notice_note = 'Your note will be submitted for moderation and will appear after approval by an administrator.';
+
+# Success messages
+$s_plugin_Moderate_issue_submitted_for_moderation = 'Issue submitted for moderation. It will appear after approval by an administrator.';
+$s_plugin_Moderate_note_submitted_for_moderation = 'Note submitted for moderation. It will appear after approval by an administrator.';
