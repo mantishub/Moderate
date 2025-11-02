@@ -36,7 +36,8 @@ class ModeratePlugin extends MantisPlugin {
 
 		$this->version = '1.0.0';
 		$this->requires = array(
-			'MantisCore' => '2.0.0',
+			# TODO: update to proper release when available
+			'MantisCore' => '2.28.0-dev',
 		);
 
 		$this->author = 'Victor Boctor';
