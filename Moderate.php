@@ -171,20 +171,18 @@ class ModeratePlugin extends MantisPlugin {
 	/**
 	 * Hook for moderating bugnotes - intercepts note creation
 	 * @param string $p_event Event name
+	 * @param integer $p_issue_id Issue ID to add the note to
 	 * @param array $p_note_data Note data array from command payload
 	 * @return boolean True if moderated, false to allow normal creation
 	 */
-	function bugnote_add_moderate( $p_event, $p_note_data ) {
-		# Bug ID is stored in the payload under 'issue_id' key by IssueNoteAddCommand
-		$t_bug_id = isset( $p_note_data['issue_id'] ) ? $p_note_data['issue_id'] : 0;
-
+	function bugnote_add_moderate( $p_event, $p_issue_id, $p_note_data ) {
 		# Check if moderation should be bypassed
-		if( moderate_should_bypass_note( $t_bug_id ) ) {
+		if( moderate_should_bypass_note( $p_issue_id ) ) {
 			return false;
 		}
 
 		# Store JSON data in moderation queue
-		moderate_queue_add( 'note', $t_bug_id, $p_note_data );
+		moderate_queue_add( 'note', $p_issue_id, $p_note_data );
 
 		# Return true to indicate note was moderated
 		return true;
