@@ -29,6 +29,8 @@ require_api( 'project_api.php' );
 require_api( 'string_api.php' );
 require_api( 'user_api.php' );
 
+use Mantis\Exceptions\ClientException;
+
 # Load plugin API
 plugin_require_api( 'files/moderate_api.php' );
 
@@ -127,10 +129,17 @@ if( empty( $t_items ) ) {
 		} else {
 			# Data is already in JSON/array format from IssueNoteAddCommand
 			# For notes, get the parent bug and format title with hyperlinked issue id
-			$t_bug = bug_get( $t_item['bug_id'] );
-			$t_bug_id_padded = bug_format_id( $t_item['bug_id'] );
-			$t_bug_url = string_get_bug_view_url( $t_item['bug_id'] );
-			$t_title = '<a href="' . $t_bug_url . '">' . $t_bug_id_padded . '</a>: ' . string_display_line( $t_bug->summary );
+			# Handle case where parent bug was deleted
+			if( bug_exists( $t_item['bug_id'] ) ) {
+				$t_bug = bug_get( $t_item['bug_id'] );
+				$t_bug_id_padded = bug_format_id( $t_item['bug_id'] );
+				$t_bug_url = string_get_bug_view_url( $t_item['bug_id'] );
+				$t_title = '<a href="' . $t_bug_url . '">' . $t_bug_id_padded . '</a>: ' . string_display_line( $t_bug->summary );
+			} else {
+				# Parent bug was deleted - show issue ID without link
+				$t_bug_id_padded = bug_format_id( $t_item['bug_id'] );
+				$t_title = $t_bug_id_padded;
+			}
 
 			# Data is already in the right format for display
 			$t_data_array = $t_data;
@@ -295,9 +304,16 @@ if( empty( $t_items ) ) {
 				break;
 		}
 
+		# Get project name, handling deleted projects
+		if( project_exists( $t_item['project_id'] ) ) {
+			$t_project_name = project_get_name( $t_item['project_id'] );
+		} else {
+			$t_project_name = '@' . $t_item['project_id'];
+		}
+
 		echo '<tr>';
 		echo '<td>' . plugin_lang_get( 'queue_type_' . $t_type ) . '</td>';
-		echo '<td>' . string_display_line( project_get_name( $t_item['project_id'] ) ) . '</td>';
+		echo '<td>' . string_display_line( $t_project_name ) . '</td>';
 		echo '<td>' . string_display_line( user_get_name( $t_item['reporter_id'] ) ) . '</td>';
 		echo '<td><strong>' . $t_summary . '</strong></td>';
 		echo '<td><span class="label label-' . $t_status_class . '">' .

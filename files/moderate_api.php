@@ -37,6 +37,8 @@ define( 'MODERATE_STATUS_REJECTED', 1 );
 define( 'MODERATE_STATUS_APPROVED', 2 );
 define( 'MODERATE_STATUS_SPAM', 3 );
 
+use Mantis\Exceptions\ClientException;
+
 /**
  * Check if moderation should be bypassed for an issue
  *
@@ -313,6 +315,35 @@ function moderate_queue_get( $p_queue_id ) {
 function moderate_queue_approve( $p_queue_id ) {
 	$t_item = moderate_queue_get( $p_queue_id );
 
+	# Validate that reporter still exists and is enabled
+	if( !user_exists( $t_item['reporter_id'] ) || !user_is_enabled( $t_item['reporter_id'] ) ) {
+		throw new ClientException(
+			'Cannot approve: reporter no longer exists or is disabled.',
+			ERROR_USER_BY_ID_NOT_FOUND,
+			array( $t_item['reporter_id'] )
+		);
+	}
+
+	# Validate that project still exists
+	if( !project_exists( $t_item['project_id'] ) || !project_enabled( $t_item['project_id'] ) ) {
+		throw new ClientException(
+			'Cannot approve: project no longer exists or is disabled.',
+			ERROR_PROJECT_NOT_FOUND,
+			array( $t_item['project_id'] )
+		);
+	}
+
+	# For notes, validate that parent bug still exists
+	if( $t_item['type'] === 'note' ) {
+		if( !bug_exists( $t_item['bug_id'] ) ) {
+			throw new ClientException(
+				'Cannot approve note: parent issue no longer exists',
+				ERROR_BUG_NOT_FOUND,
+				array( $t_item['bug_id'] )
+			);
+		}
+	}
+
 	# Impersonate the reporter for validation and creation
 	# current_user_set() returns the old user ID
 	$t_current_user = current_user_set( $t_item['reporter_id'] );
@@ -544,7 +575,10 @@ function moderate_queue_spam( $p_queue_id ) {
 	$t_spam_count = db_affected_rows();
 
 	# Disable the reporter's user account so they can no longer sign in or report issues
-	user_set_field( $t_reporter_id, 'enabled', false );
+	# Only if the user still exists
+	if( user_exists( $t_reporter_id ) ) {
+		user_set_field( $t_reporter_id, 'enabled', false );
+	}
 
 	# Return the number of items marked as spam
 	return $t_spam_count;
