@@ -184,13 +184,17 @@ MantisBT interface. After submission:
 
 ### Technical Details
 
-1. **Event Hooks**: The plugin hooks into `EVENT_REPORT_BUG` and `EVENT_BUGNOTE_ADD`
-2. **Interception**: When an item is created, the plugin checks if moderation is needed
-3. **Queue Storage**: If moderation is required, the item data is serialized and stored in the
-   queue
-4. **Original Deletion**: The original issue/note is deleted to prevent it from appearing
-5. **Approval Process**: When approved, the item is recreated from the stored data
-6. **Email Trigger**: Email notifications are sent only after approval
+1. Plugin determines if current user may be subject to moderation and may show messages to indicate
+   that their submissions will be moderated.
+2. When an issue or note is submitted, the plugin examines if the issue/note should be moderated
+   or auto-approved.
+3. Issues/notes that need moderation will be intercepted and are added to the moderation queue.
+   The issue or note are not going to be created at this time and user will be notified that their submission is pending moderation.
+4. The moderator will moderate the submission and decide if it is going to be approved, rejected,
+   deleted or considered spam.
+5. Approved entries are allowed to create the appropriate entity and trigger the appropriate email
+   notifications.
+6. Rejected entries may result in an email notification to the user to let them know.
 
 ## REST API
 
