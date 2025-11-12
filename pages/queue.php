@@ -147,17 +147,8 @@ if( empty( $t_items ) ) {
 
 		$t_json = json_encode( $t_data_array, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE );
 
-		# Action URLs
-		$t_approve_url = plugin_page( 'approve' ) . '&id=' . $t_item['id'] . form_security_param( 'plugin_Moderate_approve' );
-		$t_reject_url = plugin_page( 'reject' ) . '&id=' . $t_item['id'] . form_security_param( 'plugin_Moderate_reject' );
-		$t_spam_url = plugin_page( 'spam' ) . '&id=' . $t_item['id'] . form_security_param( 'plugin_Moderate_spam' );
-		$t_delete_url = plugin_page( 'delete' ) . '&id=' . $t_item['id'] . form_security_param( 'plugin_Moderate_delete' );
-
 		# Get date format
 		$t_date_format = config_get( 'normal_date_format' );
-
-		# Check if user has manage users access for spam button
-		$t_show_spam = access_has_global_level( config_get( 'manage_user_threshold' ) );
 
 		# Check if item is moderated (not pending)
 		$t_is_moderated = $t_item['status'] != MODERATE_STATUS_PENDING;
@@ -168,6 +159,8 @@ if( empty( $t_items ) ) {
 		# Check if reject button should be shown (not for already approved or rejected items)
 		$t_show_reject = $t_item['status'] != MODERATE_STATUS_APPROVED && $t_item['status'] != MODERATE_STATUS_REJECTED;
 
+		# Check if user has manage users access for spam button
+		$t_show_spam = access_has_global_level( config_get( 'manage_user_threshold' ) );
 		# Don't show spam button for already approved items
 		$t_show_spam = $t_show_spam && $t_item['status'] != MODERATE_STATUS_APPROVED;
 ?>
@@ -231,24 +224,34 @@ if( empty( $t_items ) ) {
 				<pre style="background-color: #f5f5f5; border: 1px solid #ddd; padding: 10px; border-radius: 4px; overflow-x: auto; max-height: 400px;"><?php echo htmlspecialchars( $t_json, ENT_QUOTES, 'UTF-8' ) ?></pre>
 			</div>
 			<div class="widget-toolbox padding-8 clearfix">
+				<div class="pull-right">
 				<?php if( $t_show_approve ): ?>
-				<a href="<?php echo $t_approve_url ?>" class="btn btn-sm btn-success pull-right" style="margin-left: 5px;">
-					<i class="fa fa-check"></i> <?php echo plugin_lang_get( 'approve' ) ?>
-				</a>
+					<?php
+						$t_action_args = [ 'id' => $t_item['id'] ];
+						$t_approve_url = plugin_page( 'approve' );
+						print_form_button( $t_approve_url, plugin_lang_get( 'approve' ), $t_action_args );
+					?>
 				<?php endif; ?>
 				<?php if( $t_show_reject ): ?>
-				<a href="<?php echo $t_reject_url ?>" class="btn btn-sm btn-danger pull-right" style="margin-left: 5px;">
-					<i class="fa fa-times"></i> <?php echo plugin_lang_get( 'reject' ) ?>
-				</a>
+					<?php
+						$t_action_args = [ 'id' => $t_item['id'] ];
+						$t_reject_url = plugin_page( 'reject' );
+						print_form_button( $t_reject_url, plugin_lang_get( 'reject' ), $t_action_args );
+					?>
 				<?php endif; ?>
 				<?php if( $t_show_spam ): ?>
-				<a href="<?php echo $t_spam_url ?>" class="btn btn-sm btn-warning pull-right" style="margin-left: 5px;" onclick="return confirm('<?php echo plugin_lang_get( 'spam_confirm' ) ?>')">
-					<i class="fa fa-ban"></i> <?php echo plugin_lang_get( 'spam' ) ?>
-				</a>
+					<?php
+						$t_action_args = [ 'id' => $t_item['id'] ];
+						$t_spam_url = plugin_page( 'spam' );
+						print_form_button( $t_spam_url, plugin_lang_get( 'spam' ), $t_action_args );
+					?>
 				<?php endif; ?>
-				<a href="<?php echo $t_delete_url ?>" class="btn btn-sm btn-default pull-right" onclick="return confirm('<?php echo plugin_lang_get( 'delete_confirm' ) ?>')">
-					<i class="fa fa-trash"></i> <?php echo plugin_lang_get( 'delete' ) ?>
-				</a>
+					<?php
+						$t_action_args = [ 'id' => $t_item['id'] ];
+						$t_delete_url = plugin_page( 'delete' );
+						print_form_button( $t_delete_url, plugin_lang_get( 'delete' ), $t_action_args );
+					?>
+				</div>
 			</div>
 		</div>
 	</div>
