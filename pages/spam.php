@@ -25,6 +25,7 @@ require_api( 'print_api.php' );
 
 # Get parameters
 $f_queue_id = gpc_get_int( 'id' );
+$f_moderated = gpc_get_int( 'moderated', 0 );
 
 # Verify form token
 form_security_validate( 'plugin_Moderate_spam' );
@@ -44,5 +45,9 @@ $t_result = $t_command->execute();
 # Clear form token
 form_security_purge( 'plugin_Moderate_spam' );
 
-# Redirect back to queue
-print_header_redirect( plugin_page( 'queue', /* redirect */ true ) );
+# Redirect back to queue with moderated parameter
+$t_redirect_url = plugin_page( 'queue', /* redirect */ true );
+if( $f_moderated ) {
+	$t_redirect_url .= '&moderated=1';
+}
+print_header_redirect( $t_redirect_url );

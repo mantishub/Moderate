@@ -41,7 +41,7 @@ moderate_queue_cleanup();
 $f_view = gpc_get_string( 'view', 'pending' );
 
 # Get the moderated parameter (for pending view)
-$f_show_moderated = gpc_get_int( 'moderated', 0 ) === 1;
+$f_show_moderated = gpc_get_int( 'moderated', 0 );
 
 # Get the count for pending view to display in title
 # Note: moderate_queue_get_pending handles project access filtering internally
@@ -234,20 +234,20 @@ if( empty( $t_items ) ) {
 				<?php endif; ?>
 				<?php if( $t_show_reject ): ?>
 					<?php
-						$t_action_args = [ 'id' => $t_item['id'] ];
+						$t_action_args = [ 'id' => $t_item['id'], 'moderated' => $f_show_moderated ];
 						$t_reject_url = plugin_page( 'reject' );
 						print_form_button( $t_reject_url, plugin_lang_get( 'reject' ), $t_action_args );
 					?>
 				<?php endif; ?>
 				<?php if( $t_show_spam ): ?>
 					<?php
-						$t_action_args = [ 'id' => $t_item['id'] ];
+						$t_action_args = [ 'id' => $t_item['id'], 'moderated' => $f_show_moderated ];
 						$t_spam_url = plugin_page( 'spam' );
 						print_form_button( $t_spam_url, plugin_lang_get( 'spam' ), $t_action_args );
 					?>
 				<?php endif; ?>
 					<?php
-						$t_action_args = [ 'id' => $t_item['id'] ];
+						$t_action_args = [ 'id' => $t_item['id'], 'moderated' => $f_show_moderated ];
 						$t_delete_url = plugin_page( 'delete' );
 						print_form_button( $t_delete_url, plugin_lang_get( 'delete' ), $t_action_args );
 					?>
