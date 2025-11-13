@@ -284,7 +284,7 @@ if( empty( $t_items ) ) {
 				<div class="pull-right">
 				<?php if( $t_show_approve ): ?>
 					<?php
-						$t_action_args = [ 'id' => $t_item['id'] ];
+						$t_action_args = [ 'id' => $t_item['id'], 'moderated' => $f_show_moderated ];
 						$t_approve_url = plugin_page( 'approve' );
 						print_form_button( $t_approve_url, plugin_lang_get( 'approve' ), $t_action_args );
 					?>

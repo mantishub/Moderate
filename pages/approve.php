@@ -25,6 +25,7 @@ require_api( 'print_api.php' );
 
 # Get parameters
 $f_queue_id = gpc_get_int( 'id' );
+$f_moderated = gpc_get_int( 'moderated', 0 );
 
 # Verify form token
 form_security_validate( 'plugin_Moderate_approve' );
@@ -44,12 +45,9 @@ $t_result = $t_command->execute();
 # Clear form token
 form_security_purge( 'plugin_Moderate_approve' );
 
-# Redirect based on item type
-if( $t_result['type'] === 'issue' ) {
-	# Redirect to the newly created issue
-	print_header_redirect( string_get_bug_view_url( $t_result['result_id'] ) );
-} else {
-	# Redirect to the issue with the note bookmark
-	$t_redirect_url = string_get_bug_view_url( $t_result['bug_id'] ) . '#c' . $t_result['result_id'];
-	print_header_redirect( $t_redirect_url );
+# Redirect back to queue with moderated parameter
+$t_redirect_url = plugin_page( 'queue', /* redirect */ true );
+if( $f_moderated ) {
+	$t_redirect_url .= '&moderated=1';
 }
+print_header_redirect( $t_redirect_url );
