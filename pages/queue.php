@@ -66,6 +66,7 @@ if( $f_view === 'pending' ) {
 
 layout_page_header( plugin_lang_get( 'queue_title' ) );
 layout_page_begin();
+print_manage_menu( 'plugin.php?page=Moderate/queue' );
 ?>
 
 
