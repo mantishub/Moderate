@@ -73,6 +73,10 @@ class ModeratePlugin extends MantisPlugin {
 
 			# Include moderator name in rejection/spam email notifications
 			'include_moderator_in_emails' => OFF,
+
+			# Auto-approve submissions from users with N or more approved entries (issues + notes)
+			# Set to 0 to always require moderation regardless of history
+			'auto_approve_threshold' => 0,
 		);
 	}
 

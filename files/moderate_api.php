@@ -40,6 +40,26 @@ define( 'MODERATE_STATUS_SPAM', 3 );
 use Mantis\Exceptions\ClientException;
 
 /**
+ * Count approved entries (issues + notes) for a user
+ *
+ * @param integer $p_user_id User ID
+ * @return integer Count of approved entries
+ */
+function moderate_count_approved_entries( $p_user_id ) {
+	# Count approved issues (actual created bugs, not moderation queue)
+	$t_query = 'SELECT COUNT(*) FROM {bug} WHERE reporter_id = ' . db_param();
+	$t_result = db_query( $t_query, array( $p_user_id ) );
+	$t_issue_count = db_result( $t_result );
+
+	# Count approved notes (actual bugnotes, not moderation queue)
+	$t_query = 'SELECT COUNT(*) FROM {bugnote} WHERE reporter_id = ' . db_param();
+	$t_result = db_query( $t_query, array( $p_user_id ) );
+	$t_note_count = db_result( $t_result );
+
+	return $t_issue_count + $t_note_count;
+}
+
+/**
  * Check if moderation should be bypassed for an issue
  *
  * @param integer $p_project_id Project ID
@@ -55,6 +75,15 @@ function moderate_should_bypass_issue( $p_project_id, $p_user_id = null ) {
 	# Check if user has bypass threshold
 	if( access_has_project_level( plugin_config_get( 'moderate_bypass_threshold', null, false, null, 'Moderate' ), $p_project_id, $p_user_id ) ) {
 		return true;
+	}
+
+	# Check auto-approve threshold based on user's approved entry count
+	$t_auto_approve_threshold = plugin_config_get( 'auto_approve_threshold', 0 );
+	if( $t_auto_approve_threshold > 0 ) {
+		$t_approved_count = moderate_count_approved_entries( $p_user_id );
+		if( $t_approved_count >= $t_auto_approve_threshold ) {
+			return true;
+		}
 	}
 
 	# User should be subject to moderation
@@ -86,6 +115,15 @@ function moderate_should_bypass_note( $p_issue_id, $p_user_id = null ) {
 	$t_reporter_id = bug_get_field( $p_issue_id, 'reporter_id' );
 	if( $t_reporter_id == $p_user_id ) {
 		return true;
+	}
+
+	# Check auto-approve threshold based on user's approved entry count
+	$t_auto_approve_threshold = plugin_config_get( 'auto_approve_threshold', 0 );
+	if( $t_auto_approve_threshold > 0 ) {
+		$t_approved_count = moderate_count_approved_entries( $p_user_id );
+		if( $t_approved_count >= $t_auto_approve_threshold ) {
+			return true;
+		}
 	}
 
 	# User should be subject to moderation
