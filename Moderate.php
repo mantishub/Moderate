@@ -70,6 +70,9 @@ class ModeratePlugin extends MantisPlugin {
 
 			# Send email notification to reporter when their submission is marked as spam
 			'notify_on_spam' => ON,
+
+			# Include moderator name in rejection/spam email notifications
+			'include_moderator_in_emails' => OFF,
 		);
 	}
 

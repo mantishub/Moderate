@@ -694,11 +694,17 @@ function moderate_email_notify_rejection( $p_item ) {
 	# Build email body
 	$t_date_format = config_get( 'normal_date_format' );
 	$t_date = date( $t_date_format, $p_item['date_submitted'] );
-	$t_moderator = user_get_name( auth_get_current_user_id() );
 
 	$t_body = $t_body_intro . "\n\n";
 	$t_body .= lang_get( 'date_submitted' ) . ': ' . $t_date . "\n";
-	$t_body .= plugin_lang_get( 'email_moderator', 'Moderate' ) . ': ' . $t_moderator . "\n\n";
+
+	# Include moderator name if configured
+	if( plugin_config_get( 'include_moderator_in_emails', OFF ) ) {
+		$t_moderator = user_get_name( auth_get_current_user_id() );
+		$t_body .= plugin_lang_get( 'email_moderator', 'Moderate' ) . ': ' . $t_moderator . "\n";
+	}
+
+	$t_body .= "\n";
 
 	# Add item details
 	if( $p_item['type'] === 'issue' ) {
@@ -756,11 +762,15 @@ function moderate_email_notify_spam( $p_item ) {
 	# Build email body
 	$t_date_format = config_get( 'normal_date_format' );
 	$t_date = date( $t_date_format, $p_item['date_submitted'] );
-	$t_moderator = user_get_name( auth_get_current_user_id() );
 
 	$t_body = plugin_lang_get( 'email_spam_body', 'Moderate' ) . "\n\n";
 	$t_body .= lang_get( 'date_submitted' ) . ': ' . $t_date . "\n";
-	$t_body .= plugin_lang_get( 'email_moderator', 'Moderate' ) . ': ' . $t_moderator . "\n";
+
+	# Include moderator name if configured
+	if( plugin_config_get( 'include_moderator_in_emails', OFF ) ) {
+		$t_moderator = user_get_name( auth_get_current_user_id() );
+		$t_body .= plugin_lang_get( 'email_moderator', 'Moderate' ) . ': ' . $t_moderator . "\n";
+	}
 
 	# Store email for sending
 	$t_id = email_store( $t_email, $t_subject, $t_body );
