@@ -153,8 +153,10 @@ if( empty( $t_items ) ) {
 		# Check if item is moderated (not pending)
 		$t_is_moderated = $t_item['status'] != MODERATE_STATUS_PENDING;
 
-		# Check if approve button should be shown (not for already approved items)
-		$t_show_approve = $t_item['status'] != MODERATE_STATUS_APPROVED;
+		# Check if approve button should be shown
+		$t_show_approve =
+			$t_item['status'] != MODERATE_STATUS_APPROVED &&
+			$t_item['status'] != MODERATE_STATUS_SPAM;
 
 		# Check if reject button should be shown (not for already approved or rejected items)
 		$t_show_reject = $t_item['status'] != MODERATE_STATUS_APPROVED && $t_item['status'] != MODERATE_STATUS_REJECTED;
