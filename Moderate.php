@@ -143,10 +143,10 @@ class ModeratePlugin extends MantisPlugin {
 	 */
 	function report_bug_form( $p_event, $p_project_id ) {
 		if( !moderate_should_bypass_issue( $p_project_id ) ) {
-			# Show a notice that the issue will be moderated
+			# Show a notice that the action will be moderated
 			echo '<div class="alert alert-warning" style="margin-bottom: 0;">';
 			echo '<i class="fa fa-info-circle"></i> ';
-			echo plugin_lang_get( 'moderation_notice_issue' );
+			echo plugin_lang_get( 'moderation_notice' );
 			echo '</div>';
 		}
 	}
@@ -159,10 +159,10 @@ class ModeratePlugin extends MantisPlugin {
 	 */
 	function bugnote_add_form( $p_event, $p_issue_id ) {
 		if( !moderate_should_bypass_note( $p_issue_id ) ) {
-			# Show a notice that the note will be moderated
+			# Show a notice that the action will be moderated
 			echo '<div class="alert alert-warning" style="margin-bottom: 0;">';
 			echo '<i class="fa fa-info-circle"></i> ';
-			echo plugin_lang_get( 'moderation_notice_note' );
+			echo plugin_lang_get( 'moderation_notice' );
 			echo '</div>';
 		}
 	}

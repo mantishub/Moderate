@@ -58,13 +58,8 @@ $s_plugin_Moderate_config_bypass_threshold = 'Bypass Moderation Access Level';
 $s_plugin_Moderate_config_notify_on_reject = 'Notify Reporter on Rejection';
 $s_plugin_Moderate_config_notify_on_spam = 'Notify Reporter When Marked as Spam';
 
-# Moderation notices
-$s_plugin_Moderate_moderation_notice_issue = 'Your issue will be submitted for moderation and will appear after approval by an administrator.';
-$s_plugin_Moderate_moderation_notice_note = 'Your note will be submitted for moderation and will appear after approval by an administrator.';
-
-# Success messages
-$s_plugin_Moderate_issue_submitted_for_moderation = 'Issue submitted for moderation. It will appear after approval by an administrator.';
-$s_plugin_Moderate_note_submitted_for_moderation = 'Note submitted for moderation. It will appear after approval by an administrator.';
+# Moderation notice
+$s_plugin_Moderate_moderation_notice = 'Your action will be submitted for moderation.';
 
 # Email notifications
 $s_plugin_Moderate_email_rejected_issue_subject = 'Your issue submission was not approved';
