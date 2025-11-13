@@ -101,6 +101,9 @@ function moderate_should_bypass_note( $p_issue_id, $p_user_id = null ) {
  * @return integer Queue item ID
  */
 function moderate_queue_add( $p_type, $p_bug_id, $p_data ) {
+	# Check if user has exceeded moderation queue rate limit
+	moderate_antispam_check();
+
 	$t_queue_table = plugin_table( 'queue', 'Moderate' );
 
 	# Encode data as JSON
@@ -764,4 +767,50 @@ function moderate_email_notify_spam( $p_item ) {
 	log_event( LOG_EMAIL_VERBOSE, 'queued spam email ' . $t_id . ' for U' . $p_item['reporter_id'] );
 
 	lang_pop();
+}
+
+/**
+ * Check if user has exceeded moderation queue limits
+ *
+ * Similar to antispam_check() but checks pending moderation queue entries
+ * instead of history events. Uses the same antispam configuration settings.
+ *
+ * @param integer|null $p_user_id User ID (defaults to current user)
+ * @return void
+ * @throws ClientException if user has exceeded the moderation queue limit
+ */
+function moderate_antispam_check( $p_user_id = null ) {
+	# Get user ID if not specified
+	if( $p_user_id === null ) {
+		$p_user_id = auth_get_current_user_id();
+	}
+
+	# Get antispam configuration
+	$t_antispam_max_event_count = config_get( 'antispam_max_event_count' );
+	if( $t_antispam_max_event_count == 0 ) {
+		return;
+	}
+
+	# Count pending moderation entries for this user
+	$t_antispam_time_window_in_seconds = config_get( 'antispam_time_window_in_seconds' );
+	$t_time_threshold = time() - $t_antispam_time_window_in_seconds;
+
+	# Query to count pending moderation entries within time window
+	$t_query = 'SELECT COUNT(*) FROM {plugin_Moderate_queue}
+		WHERE reporter_id = ' . db_param() . '
+		AND status = ' . db_param() . '
+		AND date_submitted >= ' . db_param();
+	$t_result = db_query( $t_query, array( $p_user_id, MODERATE_STATUS_PENDING, $t_time_threshold ) );
+	$t_count = db_result( $t_result );
+
+	# Allow one more entry before hitting the limit
+	if( $t_count < $t_antispam_max_event_count ) {
+		return;
+	}
+
+	throw new ClientException(
+		"Hit moderation queue rate limit threshold",
+		ERROR_SPAM_SUSPECTED,
+		array( $t_antispam_max_event_count, $t_antispam_time_window_in_seconds )
+	);
 }
