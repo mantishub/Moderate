@@ -68,6 +68,7 @@ layout_page_header( plugin_lang_get( 'queue_title' ) );
 layout_page_begin();
 ?>
 
+
 <div class="col-md-12 col-xs-12">
 <div class="space-10"></div>
 
@@ -223,7 +224,60 @@ if( empty( $t_items ) ) {
 						<?php echo date( $t_date_format, $t_item['date_moderated'] ) ?>
 					</div>
 				<?php endif; ?>
-				<pre style="background-color: #f5f5f5; border: 1px solid #ddd; padding: 10px; border-radius: 4px; overflow-x: auto; max-height: 400px;"><?php echo htmlspecialchars( $t_json, ENT_QUOTES, 'UTF-8' ) ?></pre>
+
+				<hr style="margin: 15px 0;">
+
+				<?php if( $t_type === 'issue' ): ?>
+					<!-- Issue Details -->
+					<div style="margin-bottom: 15px;">
+						<strong><?php echo lang_get( 'summary' ) ?>:</strong>
+						<div style="margin-top: 5px;"><?php echo string_display_line( $t_data['summary'] ) ?></div>
+					</div>
+					<div style="margin-bottom: 15px;">
+						<strong><?php echo lang_get( 'description' ) ?>:</strong>
+						<div style="margin-top: 5px; white-space: pre-wrap;"><?php echo string_display( $t_data['description'] ) ?></div>
+					</div>
+					<?php if( isset( $t_data['category'] ) && !empty( $t_data['category']['name'] ) ): ?>
+						<div style="margin-bottom: 10px;">
+							<strong><?php echo lang_get( 'category' ) ?>:</strong>
+							<?php echo string_display_line( $t_data['category']['name'] ) ?>
+						</div>
+					<?php endif; ?>
+					<?php if( isset( $t_data['steps_to_reproduce'] ) && !empty( $t_data['steps_to_reproduce'] ) ): ?>
+						<div style="margin-bottom: 15px;">
+							<strong><?php echo lang_get( 'steps_to_reproduce' ) ?>:</strong>
+							<div style="margin-top: 5px; white-space: pre-wrap;"><?php echo string_display( $t_data['steps_to_reproduce'] ) ?></div>
+						</div>
+					<?php endif; ?>
+					<?php if( isset( $t_data['additional_information'] ) && !empty( $t_data['additional_information'] ) ): ?>
+						<div style="margin-bottom: 15px;">
+							<strong><?php echo lang_get( 'additional_information' ) ?>:</strong>
+							<div style="margin-top: 5px; white-space: pre-wrap;"><?php echo string_display( $t_data['additional_information'] ) ?></div>
+						</div>
+					<?php endif; ?>
+				<?php else: ?>
+					<!-- Note Details -->
+					<div style="margin-bottom: 15px;">
+						<strong><?php echo lang_get( 'note' ) ?>:</strong>
+						<div style="margin-top: 5px; white-space: pre-wrap;"><?php echo string_display( $t_data['text'] ) ?></div>
+					</div>
+					<?php if( isset( $t_data['view_state'] ) ): ?>
+						<div style="margin-bottom: 10px;">
+							<strong><?php echo lang_get( 'view_status' ) ?>:</strong>
+							<?php echo get_enum_element( 'view_state', $t_data['view_state']['id'] ) ?>
+						</div>
+					<?php endif; ?>
+				<?php endif; ?>
+
+				<!-- Collapsible JSON Section -->
+				<div style="margin-top: 15px;">
+					<details>
+						<summary style="cursor: pointer; font-size: 0.9em; color: #3a87ad;">
+							<?php echo plugin_lang_get( 'queue_toggle_json' ) ?>
+						</summary>
+						<pre style="background-color: #f5f5f5; border: 1px solid #ddd; padding: 10px; border-radius: 4px; overflow-x: auto; max-height: 400px; margin-top: 10px;"><?php echo htmlspecialchars( $t_json, ENT_QUOTES, 'UTF-8' ) ?></pre>
+					</details>
+				</div>
 			</div>
 			<div class="widget-toolbox padding-8 clearfix">
 				<div class="pull-right">

@@ -42,6 +42,7 @@ $s_plugin_Moderate_status_unknown = 'Unknown';
 $s_plugin_Moderate_approve = 'Approve';
 $s_plugin_Moderate_reject = 'Reject';
 $s_plugin_Moderate_spam = 'Spam';
+$s_plugin_Moderate_queue_toggle_json = 'Show/Hide Raw Data';
 $s_plugin_Moderate_spam_confirm = 'Mark this item and all pending items from the same user as spam?';
 $s_plugin_Moderate_delete = 'Delete';
 $s_plugin_Moderate_delete_confirm = 'Delete this item from the queue?';
