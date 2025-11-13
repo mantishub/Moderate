@@ -125,6 +125,7 @@ class ModeratePlugin extends MantisPlugin {
 			'EVENT_REPORT_BUG_FORM' => 'report_bug_form',
 			'EVENT_REPORT_BUG_MODERATE' => 'report_bug_moderate',
 			'EVENT_REPORT_BUG_MODERATE_CHECK' => 'report_bug_moderate_check',
+			'EVENT_BUGNOTE_ADD_FORM' => 'bugnote_add_form',
 			'EVENT_BUGNOTE_ADD_MODERATE' => 'bugnote_add_moderate',
 			'EVENT_BUGNOTE_ADD_MODERATE_CHECK' => 'bugnote_add_moderate_check',
 			'EVENT_MENU_MANAGE' => 'menu_manage',
@@ -143,9 +144,25 @@ class ModeratePlugin extends MantisPlugin {
 	function report_bug_form( $p_event, $p_project_id ) {
 		if( !moderate_should_bypass_issue( $p_project_id ) ) {
 			# Show a notice that the issue will be moderated
-			echo '<div class="alert alert-warning">';
+			echo '<div class="alert alert-warning" style="margin-bottom: 0;">';
 			echo '<i class="fa fa-info-circle"></i> ';
 			echo plugin_lang_get( 'moderation_notice_issue' );
+			echo '</div>';
+		}
+	}
+
+	/**
+	 * Hook for bugnote add form - check if moderation will be needed
+	 * @param string $p_event Event name
+	 * @param integer $p_issue_id Issue ID
+	 * @return void
+	 */
+	function bugnote_add_form( $p_event, $p_issue_id ) {
+		if( !moderate_should_bypass_note( $p_issue_id ) ) {
+			# Show a notice that the note will be moderated
+			echo '<div class="alert alert-warning" style="margin-bottom: 0;">';
+			echo '<i class="fa fa-info-circle"></i> ';
+			echo plugin_lang_get( 'moderation_notice_note' );
 			echo '</div>';
 		}
 	}
