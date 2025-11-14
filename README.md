@@ -99,31 +99,10 @@ without waiting for moderation approval. This is essential for effective issue t
 **Exception**: This bypass applies regardless of the user's access level. Even users below the bypass
 threshold can add notes to their own issues without moderation.
 
-## Moderation Decision Logic
+### 3. Proven track record
 
-Here's how the system determines whether an issue or note requires moderation:
-
-### For New Issues
-
-```
-if (user access level >= bypass threshold) {
-    ✅ Create immediately (bypass moderation)
-} else {
-    ❌ Send to moderation queue
-}
-```
-
-### For New Notes
-
-```
-if (user access level >= bypass threshold) {
-    ✅ Create immediately (bypass moderation)
-} else if (user is the original issue reporter) {
-    ✅ Create immediately (own issue bypass)
-} else {
-    ❌ Send to moderation queue
-}
-```
+A user who has more than N entries (issues or notes) that were already approved in the past,
+will be auto-approved for future submissions.
 
 ## Project-Based Access Control
 
@@ -302,6 +281,9 @@ Returns moderation queue statistics. Optional `project_id` parameter filters by 
 ## Limitations
 
 - When an issue or a note requires moderation, attaching files is not allowed.
+  If a user submits an issue and it gets approved, they can submit notes with
+  attachments as a follow up. Once user meets the proven track record threshold,
+  then they can submit issues or notes with attachments.
 
 ## Future Enhancements
 
